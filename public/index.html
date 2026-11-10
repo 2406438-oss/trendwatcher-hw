@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Трендвотчер - Публичная витрина</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .filters {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .filter-label {
+            color: #666;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        .filter-btn {
+            background: #f5f5f5;
+            border: 2px solid transparent;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .filter-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .events-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .event-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .event-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .event-competitor {
+            font-size: 12px;
+            font-weight: 600;
+            color: #667eea;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .event-importance {
+            font-size: 14px;
+        }
+
+        .event-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .event-gist {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .event-why {
+            background: #f0f7ff;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 12px;
+            border-left: 3px solid #667eea;
+        }
+
+        .event-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .event-link {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .event-link:hover {
+            color: #764ba2;
+        }
+
+        .event-date {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+            font-size: 18px;
+        }
+
+        .error {
+            background: #ff4444;
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 60px 20px;
+            color: white;
+            font-size: 18px;
+        }
+
+        @media (max-width: 768px) {
+            .events-grid {
+                grid-template-columns: 1fr;
+            }
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .filter-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Трендвотчер</h1>
+            <p class="subtitle">Мониторинг активности конкурентов в IT-образовании</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="totalEvents">-</div>
+                <div class="stat-label">Всего событий</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="importantEvents">-</div>
+                <div class="stat-label">Важных (≥3)</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="competitorsCount">-</div>
+                <div class="stat-label">Конкурентов</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="lastUpdate">-</div>
+                <div class="stat-label">Обновлено</div>
+            </div>
+        </div>
+
+        <div class="filters">
+            <span class="filter-label">Фильтр:</span>
+            <button class="filter-btn active" onclick="filterByCompetitor('all')">Все</button>
+            <button class="filter-btn" onclick="filterByCompetitor('Яндекс Практикум')">Яндекс Практикум</button>
+            <button class="filter-btn" onclick="filterByCompetitor('Skillfactory')">Skillfactory</button>
+            <button class="filter-btn" onclick="filterByCompetitor('Hexlet')">Hexlet</button>
+            <button class="filter-btn" onclick="filterByCompetitor('Netology')">Netology</button>
+            <button class="filter-btn" onclick="filterByCompetitor('GeekBrains')">GeekBrains</button>
+            
+            <span style="margin-left: auto;" class="filter-label">Важность:</span>
+            <button class="filter-btn active" onclick="filterByImportance('all')">Все</button>
+            <button class="filter-btn" onclick="filterByImportance(5)">⭐⭐⭐⭐⭐</button>
+            <button class="filter-btn" onclick="filterByImportance(4)">⭐⭐⭐⭐</button>
+            <button class="filter-btn" onclick="filterByImportance(3)">⭐⭐⭐</button>
+        </div>
+
+        <div id="loading" class="loading">
+            ⏳ Загрузка событий...
+        </div>
+
+        <div id="error" class="error" style="display: none;"></div>
+
+        <div id="eventsContainer" class="events-grid"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        // ВАЖНО: Замените на ваши реальные данные Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyA0uYWqDWg39sbpQxnqH_9i3VJM8Yr-vEw",
+            authDomain: "trendwatcher-hw.firebaseapp.com",
+            projectId: "trendwatcher-hw",
+            storageBucket: "trendwatcher-hw.firebasestorage.app",
+            messagingSenderId: "262783462646",
+            appId: "1:262783462646:web:28aca453181498bcc08d7"
+        };
+
+        // Инициализация Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let allEvents = [];
+        let currentCompetitorFilter = 'all';
+        let currentImportanceFilter = 'all';
+
+        async function loadEvents() {
+            try {
+                const snapshot = await db.collection('events')
+                    .orderBy('collected_at', 'desc')
+                    .limit(100)
+                    .get();
+
+                allEvents = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    if (data.importance !== null && data.importance !== undefined) {
+                        allEvents.push({
+                            id: doc.id,
+                            ...data,
+                            collected_at: data.collected_at?.toDate() || new Date()
+                        });
+                    }
+                });
+                
+                updateStats();
+                renderEvents();
+                
+                document.getElementById('loading').style.display = 'none';
+                
+            } catch (error) {
+                console.error('Error loading events:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').textContent = '❌ ' + error.message;
+                document.getElementById('error').style.display = 'block';
+            }
+        }
+
+        function updateStats() {
+            const importantEvents = allEvents.filter(e => e.importance >= 3);
+            const competitors = [...new Set(allEvents.map(e => e.competitor))];
+            
+            document.getElementById('totalEvents').textContent = allEvents.length;
+            document.getElementById('importantEvents').textContent = importantEvents.length;
+            document.getElementById('competitorsCount').textContent = competitors.length;
+            
+            if (allEvents.length > 0) {
+                const lastDate = allEvents[0].collected_at;
+                document.getElementById('lastUpdate').textContent = lastDate.toLocaleDateString('ru-RU');
+            }
+        }
+
+        function renderEvents() {
+            let filtered = allEvents;
+
+            // Фильтр по конкуренту
+            if (currentCompetitorFilter !== 'all') {
+                filtered = filtered.filter(e => e.competitor === currentCompetitorFilter);
+            }
+
+            // Фильтр по важности
+            if (currentImportanceFilter !== 'all') {
+                filtered = filtered.filter(e => e.importance === currentImportanceFilter);
+            }
+
+            const container = document.getElementById('eventsContainer');
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="empty">📭 Нет событий по выбранным фильтрам</div>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(event => `
+                <div class="event-card">
+                    <div class="event-header">
+                        <div class="event-competitor">${event.competitor}</div>
+                        <div class="event-importance">${'⭐'.repeat(event.importance)}</div>
+                    </div>
+                    <div class="event-title">${event.title}</div>
+                    <div class="event-gist">${event.gist || 'Нет описания'}</div>
+                    ${event.why ? `<div class="event-why">💡 ${event.why}</div>` : ''}
+                    <div class="event-footer">
+                        <a href="${event.url}" target="_blank" class="event-link">Перейти к источнику →</a>
+                        <div class="event-date">${event.collected_at.toLocaleDateString('ru-RU')}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterByCompetitor(competitor) {
+            currentCompetitorFilter = competitor;
+            
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.textContent === competitor || (competitor === 'all' && btn.textContent === 'Все')) {
+                    btn.classList.add('active');
+                } else if (!btn.onclick.toString().includes('filterByImportance')) {
+                    btn.classList.remove('active');
+                }
+            });
+            
+            renderEvents();
+        }
+
+        function filterByImportance(importance) {
+            currentImportanceFilter = importance;
+            
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.onclick.toString().includes('filterByImportance')) {
+                    if ((importance === 'all' && btn.textContent === 'Все') || 
+                        (importance !== 'all' && btn.onclick.toString().includes(importance))) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                }
+            });
+            
+            renderEvents();
+        }
+
+        // Загружаем события при загрузке страницы
+        loadEvents();
+        
+        // Автообновление каждые 5 минут
+        setInterval(loadEvents, 5 * 60 * 1000);
+    </script>
+</body>
+</html>
